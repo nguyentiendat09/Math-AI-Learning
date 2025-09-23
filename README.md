@@ -2,102 +2,6 @@
 
 Một nền tảng học toán trực tuyến với tích hợp AI, được xây dựng bằng React và Node.js.
 
-## 🚀 **HƯỚNG DẪN DEPLOY MIỄN PHÍ**
-
-### **Cách 1: Vercel (Frontend) + Railway (Backend)**
-
-#### **Bước 1: Đẩy code lên GitHub**
-
-```bash
-# Khởi tạo git repository
-git init
-git add .
-git commit -m "Initial commit"
-
-# Tạo repository trên GitHub và push
-git remote add origin https://github.com/your-username/mathai.git
-git branch -M main
-git push -u origin main
-```
-
-#### **Bước 2: Deploy Frontend với Vercel**
-
-1. Truy cập [vercel.com](https://vercel.com)
-2. Đăng nhập bằng GitHub
-3. Click "New Project" → Import your repository
-4. **Cấu hình quan trọng:**
-   - **Framework Preset**: Create React App
-   - **Root Directory**: `FE`
-   - **Build Command**: `npm run build`
-   - **Output Directory**: `build`
-   - **Install Command**: `npm install`
-
-#### **Bước 3: Deploy Backend với Railway**
-
-1. Truy cập [railway.app](https://railway.app)
-2. Đăng nhập bằng GitHub
-3. Click "New Project" → Deploy from GitHub repo
-4. **Cấu hình:**
-   - **Root Directory**: `BE`
-   - **Start Command**: `npm start`
-   - **Environment Variables**: (xem bên dưới)
-
-#### **Bước 4: Cấu hình Environment Variables**
-
-**Railway (Backend):**
-
-```env
-PORT=5000
-NODE_ENV=production
-FRONTEND_URL=https://your-app.vercel.app
-```
-
-**Vercel (Frontend):**
-
-```env
-REACT_APP_API_URL=https://your-backend.railway.app
-```
-
-### **Cách 2: Render (Full-stack)**
-
-1. Truy cập [render.com](https://render.com)
-2. Tạo **Web Service** cho backend
-3. Tạo **Static Site** cho frontend
-4. Kết nối với GitHub repository
-
-### **Cách 3: Netlify (Frontend) + Heroku (Backend)**
-
-- **Netlify**: Đơn giản, kéo thả folder build
-- **Heroku**: Cần credit card (miễn phí $0)
-
-## 🛠 **CẤU HÌNH DEPLOYMENT FILES**
-
-### Frontend (`FE/package.json`):
-
-```json
-{
-  "homepage": ".",
-  "scripts": {
-    "build": "react-scripts build",
-    "deploy": "npm run build"
-  }
-}
-```
-
-### Backend (`BE/package.json`):
-
-```json
-{
-  "scripts": {
-    "start": "node server.js",
-    "dev": "nodemon server.js"
-  },
-  "engines": {
-    "node": ">=16.0.0"
-  }
-}
-```
-
 ## 🌟 Tính năng chính
 
 ### 🎓 Dành cho Học sinh
@@ -434,3 +338,4 @@ Nếu bạn gặp vấn đề hoặc có câu hỏi, vui lòng:
 ---
 
 **MathAI Learning Platform** - Revolutionizing Math Education with AI 🚀📚
+
