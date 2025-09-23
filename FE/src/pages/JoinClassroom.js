@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import {
-  BookOpen,
   Users,
   KeyRound,
   ArrowRight,
@@ -11,6 +10,7 @@ import {
   School,
   Code,
 } from "lucide-react";
+import { getAllClassrooms, getClassroomByCode } from "../data/classrooms";
 
 const JoinClassroom = () => {
   const { user, joinClassroom, hasJoinedClassroom } = useAuth();
@@ -20,45 +20,7 @@ const JoinClassroom = () => {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
-  // Mock classroom data for code validation
-  const mockClassrooms = {
-    MATH6A: {
-      id: 1,
-      name: "Toán học lớp 6A",
-      description: "Lớp học toán cơ bản cho học sinh lớp 6",
-      subject: "Toán học",
-      grade: 6,
-      teacher: "Cô Phạm Thị Lan",
-      studentCount: 30,
-    },
-    MATH7A: {
-      id: 2,
-      name: "Toán học lớp 7A",
-      description: "Lớp học toán cho học sinh lớp 7",
-      subject: "Toán học",
-      grade: 7,
-      teacher: "Cô Nguyễn Thị Hoa",
-      studentCount: 25,
-    },
-    MATH8B: {
-      id: 3,
-      name: "Toán học lớp 8B",
-      description: "Lớp học toán nâng cao",
-      subject: "Toán học",
-      grade: 8,
-      teacher: "Thầy Trần Văn Nam",
-      studentCount: 22,
-    },
-    PHYS9A: {
-      id: 4,
-      name: "Vật lý lớp 9A",
-      description: "Lớp học vật lý cơ bản",
-      subject: "Vật lý",
-      grade: 9,
-      teacher: "Cô Lê Thị Mai",
-      studentCount: 28,
-    },
-  };
+  // Use shared classroom data instead of local mock data
 
   const handleJoinClassroom = async () => {
     if (!classCode.trim()) {
@@ -74,7 +36,7 @@ const JoinClassroom = () => {
       // Simulate API delay
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
-      const classroom = mockClassrooms[classCode.toUpperCase()];
+      const classroom = getClassroomByCode(classCode.toUpperCase());
 
       if (!classroom) {
         setError("Mã lớp học không tồn tại. Vui lòng kiểm tra lại.");
@@ -83,7 +45,15 @@ const JoinClassroom = () => {
       }
 
       // Check if student's grade matches classroom grade
-      if (user?.grade && user.grade !== classroom.grade) {
+      console.log("🔍 Debug grade comparison:");
+      console.log("User grade:", user?.grade, typeof user?.grade);
+      console.log("Classroom grade:", classroom.grade, typeof classroom.grade);
+
+      // Convert both to numbers for comparison
+      const userGrade = parseInt(user?.grade);
+      const classroomGrade = parseInt(classroom.grade);
+
+      if (user?.grade && userGrade !== classroomGrade) {
         setError(
           `❌ Bạn không thể tham gia lớp học này!\n\n🎓 Lớp học "${classroom.name}" dành cho học sinh lớp ${classroom.grade}\n👤 Tài khoản của bạn là học sinh lớp ${user.grade}\n\n💡 Vui lòng tìm mã lớp học phù hợp với lớp ${user.grade} của bạn.`
         );
@@ -198,68 +168,86 @@ const JoinClassroom = () => {
             </button>
           </div>
 
-          {/* Sample Codes for Demo */}
-          <div className="bg-white rounded-xl shadow-lg p-6">
-            <h3 className="text-lg font-bold text-gray-900 mb-4">
-              Mã lớp học mẫu (Demo)
-            </h3>
-            <div className="space-y-3">
-              {Object.entries(mockClassrooms)
-                .filter(([code, classroom]) => {
-                  // Show all classrooms if user grade is not set
-                  if (!user?.grade) return true;
-                  // Only show classrooms matching user's grade
-                  return classroom.grade === user.grade;
-                })
-                .map(([code, classroom]) => (
-                  <div
-                    key={code}
-                    className="border border-gray-200 rounded-lg p-3 hover:bg-gray-50 transition-colors cursor-pointer"
-                    onClick={() => setClassCode(code)}
-                  >
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <div className="flex items-center space-x-2">
-                          <span className="font-mono text-sm font-bold text-blue-600">
-                            {code}
-                          </span>
-                          <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded">
-                            Lớp {classroom.grade}
-                          </span>
+          {/* Sample Codes for Demo - Only show if user has matching grade classrooms */}
+          {getAllClassrooms().filter((classroom) => {
+            // Show all classrooms if user grade is not set
+            if (!user?.grade) return true;
+            // Only show classrooms matching user's grade
+            return classroom.grade === user.grade;
+          }).length > 0 && (
+            <div className="bg-white rounded-xl shadow-lg p-6">
+              <h3 className="text-lg font-bold text-gray-900 mb-4">
+                Mã lớp học có sẵn - Lớp {user?.grade || "Tất cả"}
+              </h3>
+              <div className="space-y-3">
+                {getAllClassrooms()
+                  .filter((classroom) => {
+                    // Show all classrooms if user grade is not set
+                    if (!user?.grade) return true;
+                    // Only show classrooms matching user's grade
+                    return classroom.grade === user.grade;
+                  })
+                  .map((classroom) => (
+                    <div
+                      key={classroom.code}
+                      className="border border-gray-200 rounded-lg p-3 hover:bg-gray-50 transition-colors cursor-pointer"
+                      onClick={() => setClassCode(classroom.code)}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <div className="flex items-center space-x-2">
+                            <span className="font-mono text-sm font-bold text-blue-600">
+                              {classroom.code}
+                            </span>
+                            <span className="text-xs bg-blue-100 text-blue-600 px-2 py-1 rounded">
+                              Lớp {classroom.grade}
+                            </span>
+                          </div>
+                          <p className="text-sm text-gray-900 font-medium">
+                            {classroom.name}
+                          </p>
+                          <p className="text-xs text-gray-600">
+                            {classroom.teacher} • {classroom.studentCount} học
+                            sinh
+                          </p>
                         </div>
-                        <p className="text-sm text-gray-900 font-medium">
-                          {classroom.name}
-                        </p>
-                        <p className="text-xs text-gray-600">
-                          {classroom.teacher} • {classroom.studentCount} học
-                          sinh
-                        </p>
+                        <ArrowRight className="h-4 w-4 text-gray-400" />
                       </div>
-                      <ArrowRight className="h-4 w-4 text-gray-400" />
                     </div>
-                  </div>
-                ))}
+                  ))}
+              </div>
+              <p className="text-xs text-gray-500 mt-4">
+                * Nhấp vào mã lớp để tự động điền vào ô nhập
+                {user?.grade && (
+                  <>
+                    <br />* Chỉ hiển thị lớp học dành cho học sinh lớp{" "}
+                    {user.grade}
+                  </>
+                )}
+              </p>
             </div>
-            {Object.entries(mockClassrooms).filter(([code, classroom]) => {
-              if (!user?.grade) return true;
+          )}
+
+          {/* No matching classrooms message */}
+          {user?.grade &&
+            getAllClassrooms().filter((classroom) => {
               return classroom.grade === user.grade;
             }).length === 0 && (
-              <div className="text-center py-4">
+              <div className="bg-white rounded-xl shadow-lg p-6 text-center">
+                <div className="text-gray-400 mb-4">
+                  <School className="h-12 w-12 mx-auto" />
+                </div>
+                <h3 className="text-lg font-bold text-gray-900 mb-2">
+                  Chưa có lớp học
+                </h3>
                 <p className="text-gray-500 text-sm">
-                  Không có lớp học nào phù hợp với lớp {user?.grade} của bạn
+                  Hiện tại chưa có lớp học nào dành cho học sinh lớp{" "}
+                  {user.grade}.
+                  <br />
+                  Vui lòng liên hệ giáo viên để được cấp mã lớp học.
                 </p>
               </div>
             )}
-            <p className="text-xs text-gray-500 mt-4">
-              * Nhấp vào mã lớp để tự động điền vào ô nhập
-              {user?.grade && (
-                <>
-                  <br />* Chỉ hiển thị lớp học dành cho học sinh lớp{" "}
-                  {user.grade}
-                </>
-              )}
-            </p>
-          </div>
         </div>
 
         {/* How it works */}

@@ -218,6 +218,13 @@ export const AuthProvider = ({ children }) => {
     );
   };
 
+  // Function to clear all joined classrooms (for debugging)
+  const clearJoinedClassrooms = () => {
+    setJoinedClassrooms([]);
+    localStorage.removeItem("joinedClassrooms");
+    console.log("🧹 Cleared all joined classrooms");
+  };
+
   // Helper function to check if user can access a topic level
   const canAccessLevel = (topicLevel) => {
     if (!user || user.role !== "student") {
@@ -248,6 +255,7 @@ export const AuthProvider = ({ children }) => {
     joinClassroom,
     hasJoinedClassroom,
     getJoinedClassroom,
+    clearJoinedClassrooms,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

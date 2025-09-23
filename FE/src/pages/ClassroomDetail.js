@@ -22,6 +22,7 @@ import {
   Pause,
   CheckCircle,
 } from "lucide-react";
+import { getClassroomById } from "../data/classrooms";
 
 const ClassroomDetail = () => {
   const { id } = useParams();
@@ -41,105 +42,121 @@ const ClassroomDetail = () => {
   }, [id, user, navigate]);
 
   const loadClassroomData = () => {
-    // Mock classroom data
-    const mockClassroom = {
+    console.log("🔍 ClassroomDetail - Loading classroom with ID:", id);
+
+    // Use shared classroom data by ID
+    const sharedClassroom = getClassroomById(id);
+    console.log(
+      "📚 ClassroomDetail - Shared classroom found:",
+      sharedClassroom
+    );
+
+    // Use shared data if available, otherwise fallback to mock
+    const mockClassroom = sharedClassroom || {
       id: parseInt(id),
-      name: "Toán học lớp 7A",
-      description: "Lớp học toán cho học sinh lớp 7",
+      name: "Lớp học không tồn tại",
+      description: "Lớp học này không tồn tại trong hệ thống",
       subject: "Toán học",
       grade: 7,
-      code: "MATH7A",
-      studentCount: 25,
-      quizCount: 5,
-      createdAt: "2024-09-01",
-      isActive: true,
+      code: "UNKNOWN",
+      studentCount: 0,
+      quizCount: 0,
+      createdAt: new Date().toISOString(),
+      isActive: false,
     };
 
-    // Mock students data
-    const mockStudents = [
-      {
-        id: 1,
-        name: "Nguyễn Văn An",
-        email: "an@student.com",
-        level: 4,
-        xp: 1850,
-        completedQuizzes: 3,
-        averageScore: 85,
-        joinedAt: "2024-09-02",
-        lastActive: "2024-09-20",
-      },
-      {
-        id: 2,
-        name: "Trần Thị Bình",
-        email: "binh@student.com",
-        level: 5,
-        xp: 2100,
-        completedQuizzes: 4,
-        averageScore: 92,
-        joinedAt: "2024-09-03",
-        lastActive: "2024-09-21",
-      },
-      {
-        id: 3,
-        name: "Lê Văn Cường",
-        email: "cuong@student.com",
-        level: 3,
-        xp: 1200,
-        completedQuizzes: 2,
-        averageScore: 78,
-        joinedAt: "2024-09-05",
-        lastActive: "2024-09-19",
-      },
-    ];
-
-    // Mock quizzes data
-    const mockQuizzes = [
-      {
-        id: 1,
-        title: "Bài kiểm tra số học",
-        description: "Kiểm tra kiến thức về số học cơ bản",
-        questionCount: 10,
-        timeLimit: 30,
-        startTime: "2024-09-15T08:00:00",
-        endTime: "2024-09-15T23:59:59",
-        status: "completed",
-        submissions: 22,
-        averageScore: 84,
-        maxScore: 98,
-        minScore: 65,
-      },
-      {
-        id: 2,
-        title: "Phép tính phân số",
-        description: "Bài tập về phép cộng, trừ, nhân, chia phân số",
-        questionCount: 15,
-        timeLimit: 45,
-        startTime: "2024-09-22T08:00:00",
-        endTime: "2024-09-22T23:59:59",
-        status: "active",
-        submissions: 18,
-        averageScore: 0,
-        maxScore: 0,
-        minScore: 0,
-      },
-      {
-        id: 3,
-        title: "Hình học cơ bản",
-        description: "Tính diện tích và chu vi các hình cơ bản",
-        questionCount: 12,
-        timeLimit: 40,
-        startTime: "2024-09-25T08:00:00",
-        endTime: "2024-09-25T23:59:59",
-        status: "scheduled",
-        submissions: 0,
-        averageScore: 0,
-        maxScore: 0,
-        minScore: 0,
-      },
-    ];
-
+    console.log("✅ ClassroomDetail - Final classroom used:", mockClassroom);
     setClassroom(mockClassroom);
+
+    // Mock students data - empty for new classrooms, sample for demo classrooms
+    const mockStudents =
+      mockClassroom.studentCount > 0
+        ? [
+            {
+              id: 1,
+              name: "Nguyễn Văn An",
+              email: "an@student.com",
+              level: 4,
+              xp: 1850,
+              completedQuizzes: 3,
+              averageScore: 85,
+              joinedAt: "2024-09-02",
+              lastActive: "2024-09-20",
+            },
+            {
+              id: 2,
+              name: "Trần Thị Bình",
+              email: "binh@student.com",
+              level: 5,
+              xp: 2100,
+              completedQuizzes: 4,
+              averageScore: 92,
+              joinedAt: "2024-09-03",
+              lastActive: "2024-09-21",
+            },
+            {
+              id: 3,
+              name: "Lê Văn Cường",
+              email: "cuong@student.com",
+              level: 3,
+              xp: 1200,
+              completedQuizzes: 2,
+              averageScore: 78,
+              joinedAt: "2024-09-04",
+              lastActive: "2024-09-19",
+            },
+          ]
+        : []; // Empty array for new classrooms
     setStudents(mockStudents);
+
+    // Mock quizzes data - empty for new classrooms, sample for demo classrooms
+    const mockQuizzes =
+      mockClassroom.quizCount > 0
+        ? [
+            {
+              id: 1,
+              title: "Bài kiểm tra số học",
+              description: "Kiểm tra kiến thức về số học cơ bản",
+              questionCount: 10,
+              timeLimit: 30,
+              startTime: "2024-09-15T08:00:00",
+              endTime: "2024-09-15T23:59:59",
+              status: "completed",
+              submissions: 22,
+              averageScore: 84,
+              maxScore: 98,
+              minScore: 65,
+            },
+            {
+              id: 2,
+              title: "Phép tính phân số",
+              description: "Bài tập về phép cộng, trừ, nhân, chia phân số",
+              questionCount: 15,
+              timeLimit: 45,
+              startTime: "2024-09-22T08:00:00",
+              endTime: "2024-09-22T23:59:59",
+              status: "active",
+              submissions: 18,
+              averageScore: null,
+              maxScore: null,
+              minScore: null,
+            },
+            {
+              id: 3,
+              title: "Hình học cơ bản",
+              description: "Tính diện tích và chu vi các hình cơ bản",
+              questionCount: 12,
+              timeLimit: 40,
+              startTime: "2024-09-25T08:00:00",
+              endTime: "2024-09-25T23:59:59",
+              status: "upcoming",
+              submissions: 0,
+              averageScore: null,
+              maxScore: null,
+              minScore: null,
+            },
+          ]
+        : []; // Empty array for new classrooms
     setQuizzes(mockQuizzes);
   };
 
@@ -271,7 +288,9 @@ const ClassroomDetail = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-gray-600 text-sm font-medium">Điểm TB</p>
-                <p className="text-2xl font-bold text-gray-900">8.4</p>
+                <p className="text-2xl font-bold text-gray-900">
+                  {classroom?.calculatedAverageScore || "--"}
+                </p>
               </div>
               <BarChart3 className="h-8 w-8 text-purple-600" />
             </div>

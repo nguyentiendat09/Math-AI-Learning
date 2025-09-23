@@ -11,12 +11,11 @@ import {
   Map,
   Zap,
   Home,
-  Settings,
   Users,
 } from "lucide-react";
 
 const Navbar = () => {
-  const { user, logout } = useAuth();
+  const { user, logout, joinedClassrooms } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -26,6 +25,10 @@ const Navbar = () => {
     navigate("/");
     setIsMenuOpen(false);
   };
+
+  // Get current joined classroom (if any)
+  const currentClassroom =
+    joinedClassrooms.length > 0 ? joinedClassrooms[0] : null;
 
   const navItems = user
     ? user.role === "teacher"
@@ -42,6 +45,16 @@ const Navbar = () => {
         ]
       : [
           { to: "/dashboard", icon: Home, label: "Dashboard" },
+          ...(currentClassroom
+            ? [
+                {
+                  to: `/my-classroom/${currentClassroom.id}`,
+                  icon: BookOpen,
+                  label: "Lớp học của tôi",
+                  badge: currentClassroom.name,
+                },
+              ]
+            : []),
           { to: "/join-classroom", icon: Users, label: "Tham gia lớp học" },
           { to: "/learning-map", icon: Map, label: "Bản đồ học tập" },
           { to: "/ai-generator", icon: Zap, label: "AI Generator" },
@@ -96,6 +109,13 @@ const Navbar = () => {
                     className="h-4 w-4"
                   />
                   <span className="text-base font-medium">{item.label}</span>
+                  {item.badge && (
+                    <span className="ml-2 text-xs bg-white text-blue-600 px-2 py-1 rounded-full">
+                      {item.badge.length > 15
+                        ? item.badge.substring(0, 15) + "..."
+                        : item.badge}
+                    </span>
+                  )}
                 </Link>
               );
             })}
@@ -177,6 +197,13 @@ const Navbar = () => {
                   >
                     <IconComponent className="h-5 w-5" />
                     <span>{item.label}</span>
+                    {item.badge && (
+                      <span className="ml-2 text-xs bg-blue-100 text-blue-600 px-2 py-1 rounded-full">
+                        {item.badge.length > 10
+                          ? item.badge.substring(0, 10) + "..."
+                          : item.badge}
+                      </span>
+                    )}
                   </Link>
                 );
               })}

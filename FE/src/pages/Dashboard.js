@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import axios from "axios";
 import {
@@ -15,10 +15,14 @@ import {
   Award,
   Brain,
   CheckCircle,
+  Users,
+  School,
 } from "lucide-react";
+import { getAllClassrooms } from "../data/classrooms";
 
 const Dashboard = () => {
-  const { user } = useAuth();
+  const { user, joinedClassrooms, clearJoinedClassrooms } = useAuth();
+  const navigate = useNavigate();
   const [topics, setTopics] = useState([]);
   const [progress, setProgress] = useState([]);
   const [stats, setStats] = useState({
@@ -183,6 +187,120 @@ const Dashboard = () => {
           <div className="flex justify-between text-sm text-gray-600 mt-2">
             <span>Bắt đầu</span>
             <span>Hoàn thành</span>
+          </div>
+        </div>
+
+        {/* Joined Classrooms Section */}
+        {joinedClassrooms.length > 0 && (
+          <div className="card mb-8">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="card-title">Lớp học của tôi</h2>
+              <CheckCircle className="h-5 w-5 text-green-500" />
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {joinedClassrooms.map((classroom) => (
+                <div
+                  key={classroom.id}
+                  className="border border-green-200 bg-green-50 rounded-lg p-4 hover:border-green-300 transition-colors hover:shadow-md"
+                >
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="font-semibold text-gray-900">
+                      {classroom.name}
+                    </h3>
+                    <button
+                      onClick={() => {
+                        console.log(
+                          "🎓 Navigating to joined classroom:",
+                          classroom.id
+                        );
+                        navigate(`/my-classroom/${classroom.id}`);
+                      }}
+                      className="px-3 py-1 bg-green-600 text-white text-sm rounded-lg hover:bg-green-700 transition-colors"
+                    >
+                      Vào lớp
+                    </button>
+                  </div>
+                  <div className="flex items-center justify-between text-sm text-gray-600 mb-2">
+                    <span className="flex items-center space-x-1">
+                      <Users className="h-4 w-4" />
+                      <span>{classroom.studentCount} học sinh</span>
+                    </span>
+                    <span>Lớp {classroom.grade}</span>
+                  </div>
+                  <p className="text-xs text-gray-500">
+                    Giáo viên: {classroom.teacher}
+                  </p>
+                  <div className="mt-2 flex items-center justify-between">
+                    <span className="text-xs text-green-600 font-medium">
+                      Mã: {classroom.code}
+                    </span>
+                    <span className="text-xs bg-green-200 text-green-800 px-2 py-1 rounded">
+                      Đã tham gia
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Available Classrooms Section */}
+        <div className="card mb-8">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="card-title">Lớp học có sẵn</h2>
+            <School className="h-5 w-5 text-gray-400" />
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {getAllClassrooms()
+              .filter(
+                (classroom) =>
+                  !joinedClassrooms.some((joined) => joined.id === classroom.id)
+              )
+              .map((classroom) => {
+                console.log(
+                  "🎨 Dashboard rendering available classroom:",
+                  classroom
+                );
+                return (
+                  <div
+                    key={classroom.id}
+                    className="border border-gray-200 rounded-lg p-4 hover:border-blue-300 transition-colors hover:shadow-md"
+                  >
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="font-semibold text-gray-900">
+                        {classroom.name}
+                      </h3>
+                      <button
+                        onClick={() => {
+                          console.log("� Navigating to join classroom page");
+                          navigate("/join-classroom");
+                        }}
+                        className="px-3 py-1 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-colors"
+                      >
+                        Tham gia
+                      </button>
+                    </div>
+                    <div className="flex items-center justify-between text-sm text-gray-600 mb-2">
+                      <span className="flex items-center space-x-1">
+                        <Users className="h-4 w-4" />
+                        <span>{classroom.studentCount} học sinh</span>
+                      </span>
+                      <span>Lớp {classroom.grade}</span>
+                    </div>
+                    <p className="text-xs text-gray-500">
+                      Giáo viên: {classroom.teacher}
+                    </p>
+                    <div className="mt-2 flex items-center justify-between">
+                      <span className="text-xs text-blue-600 font-medium">
+                        Mã: {classroom.code}
+                      </span>
+                      <span className="text-xs text-gray-500">
+                        {classroom.quizCount} bài quiz
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
           </div>
         </div>
 

@@ -17,10 +17,11 @@ import {
   Target,
   TrendingUp,
 } from "lucide-react";
+import { getClassroomById } from "../data/classrooms";
 
 const StudentClassroomView = () => {
   const { id } = useParams();
-  const { user, getJoinedClassroom } = useAuth();
+  const { user, getJoinedClassroom, hasJoinedClassroom } = useAuth();
   const navigate = useNavigate();
   const [classroom, setClassroom] = useState(null);
   const [classmates, setClassmates] = useState([]);
@@ -29,121 +30,161 @@ const StudentClassroomView = () => {
   const [activeTab, setActiveTab] = useState("assignments");
 
   const loadClassroomData = useCallback(() => {
-    // Mock classroom data
-    const mockClassroom = {
-      id: parseInt(id),
-      name: "Toán học lớp 7A",
-      description: "Lớp học toán cho học sinh lớp 7",
-      subject: "Toán học",
-      grade: 7,
-      code: "MATH7A",
-      teacher: "Cô Nguyễn Thị Hoa",
-      studentCount: 25,
-    };
+    console.log("🔍 StudentClassroomView - ID from URL:", id, typeof id);
+    console.log("🔍 Current URL:", window.location.href);
 
-    // Mock classmates data
-    const mockClassmates = [
-      {
-        id: 1,
-        name: "Nguyễn Văn An",
-        level: 4,
-        xp: 1850,
-        rank: 1,
-        avatar: null,
-      },
-      {
-        id: 2,
-        name: "Trần Thị Bình",
-        level: 5,
-        xp: 2100,
-        rank: 2,
-        avatar: null,
-      },
-      {
-        id: 3,
-        name: "Lê Văn Cường",
-        level: 3,
-        xp: 1200,
-        rank: 3,
-        avatar: null,
-      },
-      {
-        id: 4,
-        name: "Phạm Thị Dung",
-        level: 4,
-        xp: 1650,
-        rank: 4,
-        avatar: null,
-      },
-      {
-        id: 5,
-        name: "Hoàng Văn Em",
-        level: 3,
-        xp: 1400,
-        rank: 5,
-        avatar: null,
-      },
-    ];
+    // Check if user has joined this classroom
+    const hasJoined = hasJoinedClassroom(parseInt(id));
+    console.log("🔒 Has joined classroom:", hasJoined);
 
-    // Mock assignments data
-    const mockAssignments = [
-      {
-        id: 1,
-        title: "Bài kiểm tra số học",
-        description: "Kiểm tra kiến thức về số học cơ bản",
-        type: "quiz",
-        dueDate: "2024-09-25T23:59:59",
-        status: "available", // available, completed, overdue, upcoming
-        score: null,
-        maxScore: 100,
-        timeLimit: 30,
-        questionCount: 10,
-        submittedAt: null,
-      },
-      {
-        id: 2,
-        title: "Phép tính phân số",
-        description: "Bài tập về phép cộng, trừ, nhân, chia phân số",
-        type: "quiz",
-        dueDate: "2024-09-22T23:59:59",
-        status: "completed",
-        score: 85,
-        maxScore: 100,
-        timeLimit: 45,
-        questionCount: 15,
-        submittedAt: "2024-09-20T14:30:00",
-      },
-      {
-        id: 3,
-        title: "Hình học cơ bản",
-        description: "Tính diện tích và chu vi các hình cơ bản",
-        type: "quiz",
-        dueDate: "2024-09-30T23:59:59",
-        status: "upcoming",
-        score: null,
-        maxScore: 100,
-        timeLimit: 40,
-        questionCount: 12,
-        submittedAt: null,
-      },
-    ];
+    if (!hasJoined) {
+      console.log(
+        "❌ User has not joined this classroom, redirecting to join page"
+      );
+      navigate("/join-classroom");
+      return;
+    }
 
-    // Mock progress data
+    // Get classroom data from shared data source
+    const sharedClassroom = getClassroomById(id);
+    console.log("📚 Shared classroom found:", sharedClassroom);
+
+    // Get joined classroom data from session
+    const joinedClassroom = getJoinedClassroom(id);
+    console.log("💾 Joined classroom from storage:", joinedClassroom);
+
+    // Use shared data as primary source
+    let mockClassroom = sharedClassroom || joinedClassroom;
+
+    if (!mockClassroom) {
+      console.log("❌ No classroom found");
+      navigate("/join-classroom");
+      return;
+    }
+
+    console.log("✅ Final classroom used:", mockClassroom);
+    console.log(
+      "🏷️ Expected:",
+      id === "2" ? "MATH8B - Toán học lớp 8B" : "MATH7A - Toán học lớp 7A"
+    );
+    console.log("🎯 Actual:", mockClassroom.code, "-", mockClassroom.name);
+
+    // Mock classmates data - empty for new classrooms, sample for demo classrooms
+    const mockClassmates =
+      mockClassroom.studentCount > 0
+        ? [
+            {
+              id: 1,
+              name: "Nguyễn Văn An",
+              level: 4,
+              xp: 1850,
+              rank: 1,
+              avatar: null,
+            },
+            {
+              id: 2,
+              name: "Trần Thị Bình",
+              level: 5,
+              xp: 2100,
+              rank: 2,
+              avatar: null,
+            },
+            {
+              id: 3,
+              name: "Lê Văn Cường",
+              level: 3,
+              xp: 1200,
+              rank: 3,
+              avatar: null,
+            },
+          ]
+        : []; // Empty array for new classrooms
+
+    // Mock assignments data - empty for new classrooms, sample for demo classrooms
+    const mockAssignments =
+      mockClassroom.quizCount > 0
+        ? [
+            {
+              id: 1,
+              title: "Bài kiểm tra số học",
+              description: "Kiểm tra kiến thức về số học cơ bản",
+              type: "quiz",
+              dueDate: "2024-09-25T23:59:59",
+              status: "available", // available, completed, overdue, upcoming
+              score: null,
+              maxScore: 100,
+              timeLimit: 30,
+              questionCount: 10,
+              submittedAt: null,
+            },
+            {
+              id: 2,
+              title: "Phép tính phân số",
+              description: "Bài tập về phép cộng, trừ, nhân, chia phân số",
+              type: "quiz",
+              dueDate: "2024-09-22T23:59:59",
+              status: "completed",
+              score: 85,
+              maxScore: 100,
+              timeLimit: 45,
+              questionCount: 15,
+              submittedAt: "2024-09-20T14:30:00",
+            },
+            {
+              id: 3,
+              title: "Hình học cơ bản",
+              description: "Tính diện tích và chu vi các hình cơ bản",
+              type: "quiz",
+              dueDate: "2024-09-30T23:59:59",
+              status: "upcoming",
+              score: null,
+              maxScore: 100,
+              timeLimit: 40,
+              questionCount: 12,
+              submittedAt: null,
+            },
+          ]
+        : []; // Empty array for new classrooms
+
+    // Calculate real progress data based on actual assignments
+    const completedAssignments = mockAssignments.filter(
+      (a) => a.status === "completed"
+    );
+    const totalAssignments = mockAssignments.length;
+
+    // Calculate average score only from completed assignments
+    let averageScore = null;
+    if (completedAssignments.length > 0) {
+      const totalScore = completedAssignments.reduce(
+        (sum, assignment) => sum + (assignment.score || 0),
+        0
+      );
+      averageScore = Math.round(totalScore / completedAssignments.length);
+    }
+
+    // Mock progress data based on real calculations
     const mockProgress = {
-      totalXP: user?.xp || 1850,
-      level: user?.level || 4,
-      rank: 3,
-      completedAssignments: 1,
-      totalAssignments: 3,
-      averageScore: 85,
-      streak: 5,
+      totalXP: user?.xp || (completedAssignments.length > 0 ? 1850 : 0),
+      level: user?.level || (completedAssignments.length > 0 ? 4 : 1),
+      rank: mockClassmates.length > 0 ? 3 : null,
+      completedAssignments: completedAssignments.length,
+      totalAssignments: totalAssignments,
+      averageScore: averageScore, // Will be null if no completed assignments
+      streak: completedAssignments.length > 0 ? 5 : 0,
     };
 
     setClassroom(mockClassroom);
     setClassmates(mockClassmates);
     setAssignments(mockAssignments);
     setMyProgress(mockProgress);
-  }, [id, user?.level, user?.xp]);
+  }, [
+    id,
+    user?.level,
+    user?.xp,
+    getJoinedClassroom,
+    hasJoinedClassroom,
+    navigate,
+  ]);
 
   useEffect(() => {
     if (user?.role !== "student") {
@@ -316,7 +357,9 @@ const StudentClassroomView = () => {
                   Điểm TB
                 </p>
                 <p className="text-xl lg:text-2xl font-bold text-gray-900">
-                  {myProgress?.averageScore || 0}
+                  {myProgress?.averageScore !== null
+                    ? myProgress.averageScore
+                    : "--"}
                 </p>
               </div>
               <Trophy className="h-6 w-6 lg:h-8 lg:w-8 text-yellow-600" />

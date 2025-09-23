@@ -16,6 +16,11 @@ import {
   Code,
   UserCheck,
 } from "lucide-react";
+import {
+  getAllClassrooms,
+  saveCustomClassroom,
+  getCustomClassrooms,
+} from "../data/classrooms";
 
 const ClassroomManagement = () => {
   const { user } = useAuth();
@@ -48,57 +53,52 @@ const ClassroomManagement = () => {
   };
 
   const loadClassrooms = () => {
-    // Mock data - replace with API call
-    const mockClassrooms = [
-      {
-        id: 1,
-        name: "Toán học lớp 7A",
-        description: "Lớp học toán cho học sinh lớp 7",
-        subject: "Toán học",
-        grade: 7,
-        code: "MATH7A",
-        studentCount: 25,
-        quizCount: 5,
-        createdAt: "2024-09-01",
-        isActive: true,
-      },
-      {
-        id: 2,
-        name: "Toán học lớp 8B",
-        description: "Lớp học toán nâng cao",
-        subject: "Toán học",
-        grade: 8,
-        code: "MATH8B",
-        studentCount: 22,
-        quizCount: 3,
-        createdAt: "2024-09-05",
-        isActive: true,
-      },
-    ];
-    setClassrooms(mockClassrooms);
+    // Load all classrooms (shared + custom from localStorage)
+    const allClassrooms = getAllClassrooms();
+    console.log("📚 Loading all classrooms:", allClassrooms);
+    setClassrooms(allClassrooms);
   };
 
   const handleCreateClassroom = () => {
     const code = newClassroom.code || generateClassCode();
     const classroom = {
-      id: Date.now(),
+      id: Date.now(), // Use timestamp as unique ID
       ...newClassroom,
+      grade: parseInt(newClassroom.grade), // Convert to number for consistency
       code,
+      teacher: user?.name || "Giáo viên",
       studentCount: 0,
       quizCount: 0,
       createdAt: new Date().toISOString().split("T")[0],
       isActive: true,
     };
 
-    setClassrooms([...classrooms, classroom]);
-    setNewClassroom({
-      name: "",
-      description: "",
-      subject: "Toán học", // Reset về mặc định Toán học
-      grade: "",
-      code: "",
-    });
-    setShowCreateModal(false);
+    console.log("🔨 Creating new classroom:", classroom);
+
+    // Save to localStorage
+    const saved = saveCustomClassroom(classroom);
+    if (saved) {
+      // Reload classrooms to include the new one
+      loadClassrooms();
+
+      // Reset form
+      setNewClassroom({
+        name: "",
+        description: "",
+        subject: "Toán học",
+        grade: "",
+        code: "",
+      });
+      setShowCreateModal(false);
+
+      console.log("✅ Classroom created successfully!");
+      alert(
+        `Lớp học "${classroom.name}" đã được tạo thành công!\nMã lớp: ${classroom.code}`
+      );
+    } else {
+      console.error("❌ Failed to create classroom");
+      alert("Có lỗi xảy ra khi tạo lớp học. Vui lòng thử lại.");
+    }
   };
 
   const copyClassCode = (code) => {

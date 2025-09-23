@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
+import { SHARED_CLASSROOMS } from "../data/classrooms";
 import {
   Users,
   BookOpen,
@@ -22,14 +23,14 @@ const TeacherDashboard = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
 
-  const [stats, setStats] = useState({
-    totalStudents: 47,
-    totalClasses: 2,
-    activeQuizzes: 8,
+  const [stats] = useState({
+    totalStudents: 47, // 25 + 22 từ 2 lớp
+    totalClasses: 2, // Chỉ có MATH7A và MATH8B
+    activeQuizzes: 3,
     averageProgress: 78,
   });
 
-  const [recentActivities, setRecentActivities] = useState([
+  const [recentActivities] = useState([
     {
       id: 1,
       student: "Nguyễn Văn An",
@@ -49,24 +50,24 @@ const TeacherDashboard = () => {
     {
       id: 3,
       student: "3 học sinh mới",
-      action: "tham gia Lớp 6A",
+      action: "tham gia " + SHARED_CLASSROOMS.MATH7A.name,
       time: "1 ngày trước",
       icon: Users,
       color: "blue",
     },
   ]);
 
-  const [activeClassrooms, setActiveClassrooms] = useState([
+  const [activeClassrooms] = useState([
     {
-      id: "MATH6A",
-      name: "Lớp 6A - Toán Nâng Cao",
+      id: SHARED_CLASSROOMS.MATH7A.code,
+      name: SHARED_CLASSROOMS.MATH7A.name,
       students: 25,
       recentActivity: "5 học sinh hoạt động",
       progress: 85,
     },
     {
-      id: "MATH7B",
-      name: "Lớp 7B - Đại Số Cơ Bản",
+      id: SHARED_CLASSROOMS.MATH8B.code,
+      name: SHARED_CLASSROOMS.MATH8B.name,
       students: 22,
       recentActivity: "3 bài quiz đang diễn ra",
       progress: 72,
