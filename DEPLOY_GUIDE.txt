@@ -1,0 +1,77 @@
+
+# =================================
+# 🚀 HƯỚNG DẪN DEPLOY MATHAI MIỄN PHÍ
+# =================================
+
+echo "Bước 1: Chuẩn bị Repository GitHub"
+echo "1. Tạo repository mới trên GitHub: https://github.com/new"
+echo "2. Tên repository: mathai-learning-platform"
+echo "3. Public repository (miễn phí)"
+
+echo ""
+echo "Bước 2: Push code lên GitHub"
+echo "Chạy các lệnh sau trong thư mục MathAI:"
+echo ""
+echo "git init"
+echo "git add ."
+echo "git commit -m \"Initial commit - MathAI Learning Platform\""
+echo "git branch -M main"
+echo "git remote add origin https://github.com/YOUR_USERNAME/mathai-learning-platform.git"
+echo "git push -u origin main"
+
+echo ""
+echo "Bước 3: Deploy Frontend với Vercel"
+echo "1. Truy cập: https://vercel.com"
+echo "2. Đăng nhập bằng GitHub"
+echo "3. Click \"New Project\""
+echo "4. Import repository: mathai-learning-platform"
+echo "5. Cấu hình deployment:"
+echo "   - Framework Preset: Create React App"
+echo "   - Root Directory: FE"
+echo "   - Build Command: npm run build"
+echo "   - Output Directory: build"
+echo "6. Thêm Environment Variables:"
+echo "   - REACT_APP_API_URL: (sẽ có sau khi deploy backend)"
+
+echo ""
+echo "Bước 4: Deploy Backend với Railway"
+echo "1. Truy cập: https://railway.app"
+echo "2. Đăng nhập bằng GitHub"
+echo "3. Click \"New Project\" → \"Deploy from GitHub repo\""
+echo "4. Chọn repository: mathai-learning-platform"
+echo "5. Cấu hình:"
+echo "   - Root Directory: BE"
+echo "   - Start Command: npm start"
+echo "6. Thêm Environment Variables:"
+echo "   - PORT: 5000"
+echo "   - NODE_ENV: production"
+echo "   - JWT_SECRET: your-secure-secret-key"
+echo "   - FRONTEND_URL: https://your-frontend.vercel.app"
+
+echo ""
+echo "Bước 5: Kết nối Frontend và Backend"
+echo "1. Copy URL backend từ Railway (vd: https://your-app.railway.app)"
+echo "2. Quay lại Vercel → Settings → Environment Variables"
+echo "3. Thêm: REACT_APP_API_URL = https://your-backend.railway.app"
+echo "4. Redeploy frontend"
+
+echo ""
+echo "🎉 HOÀN THÀNH!"
+echo "Frontend: https://your-app.vercel.app"
+echo "Backend: https://your-backend.railway.app"
+
+echo ""
+echo "📋 CHECKLIST TRƯỚC KHI DEPLOY:"
+echo "✅ Code đã được test local"
+echo "✅ .gitignore đã được tạo"
+echo "✅ package.json đã có engines"
+echo "✅ CORS đã được cấu hình"
+echo "✅ Environment variables đã được setup"
+
+echo ""
+echo "🆓 CÁC PLATFORM MIỄN PHÍ KHÁC:"
+echo "Frontend: Netlify, GitHub Pages, Surge.sh"
+echo "Backend: Render, Heroku (cần credit card), Cyclic"
+echo "Database: Railway PostgreSQL, PlanetScale, Supabase"
+
+
