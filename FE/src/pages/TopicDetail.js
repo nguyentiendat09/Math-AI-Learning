@@ -30,6 +30,38 @@ const TopicDetail = () => {
   const [loading, setLoading] = useState(true);
   const [progress, setProgress] = useState(null);
 
+  // Function to convert YouTube URL to embed URL
+  const getYouTubeEmbedUrl = (url) => {
+    if (!url) return null;
+
+    // Handle different YouTube URL formats
+    let videoId = null;
+
+    try {
+      if (url.includes("youtube.com/watch?v=")) {
+        // Standard format: https://www.youtube.com/watch?v=VIDEO_ID
+        const urlParams = new URL(url).searchParams;
+        videoId = urlParams.get("v");
+      } else if (url.includes("youtu.be/")) {
+        // Short format: https://youtu.be/VIDEO_ID
+        videoId = url.split("youtu.be/")[1].split("?")[0];
+      } else if (url.includes("youtube.com/embed/")) {
+        // Already embed format
+        return url;
+      }
+
+      if (videoId) {
+        // Remove any additional parameters after video ID
+        videoId = videoId.split("&")[0].split("#")[0];
+        return `https://www.youtube.com/embed/${videoId}`;
+      }
+    } catch (error) {
+      console.error("Error parsing YouTube URL:", error);
+    }
+
+    return url; // Return original URL if parsing fails
+  };
+
   useEffect(() => {
     fetchTopicDetail();
     fetchProgress();
@@ -622,6 +654,13 @@ const TopicDetail = () => {
                         {/* Debug video data */}
                         {console.log(`🎥 Video ${index + 1} debug:`, {
                           title: video.title,
+                          originalUrl: video.url,
+                          embedUrl:
+                            video.url &&
+                            (video.url.includes("youtube.com") ||
+                              video.url.includes("youtu.be"))
+                              ? getYouTubeEmbedUrl(video.url)
+                              : video.url,
                           hasUrl: !!video.url,
                           hasFile: !!video.file,
                           uploadType: video.uploadType,
@@ -630,9 +669,6 @@ const TopicDetail = () => {
                               ? "base64"
                               : "url"
                             : "none",
-                          urlPreview: video.url
-                            ? video.url.substring(0, 50) + "..."
-                            : "none",
                         })}
 
                         {video.url ? (
@@ -640,12 +676,14 @@ const TopicDetail = () => {
                           video.url.includes("youtu.be") ? (
                             <div className="w-full h-96 bg-black rounded-lg overflow-hidden">
                               <iframe
-                                src={video.url.replace("watch?v=", "embed/")}
+                                src={getYouTubeEmbedUrl(video.url)}
                                 title={video.title || `Video ${index + 1}`}
                                 className="w-full h-full"
                                 frameBorder="0"
-                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                                 allowFullScreen
+                                referrerPolicy="strict-origin-when-cross-origin"
+                                sandbox="allow-scripts allow-same-origin allow-presentation"
                               ></iframe>
                             </div>
                           ) : (
