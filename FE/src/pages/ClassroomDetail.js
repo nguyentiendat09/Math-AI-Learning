@@ -115,8 +115,9 @@ const ClassroomDetail = () => {
         ? [
             {
               id: 1,
-              title: "Bài kiểm tra số học",
-              description: "Kiểm tra kiến thức về số học cơ bản",
+              title: "Bài kiểm tra ngắn về đơn thức",
+              description:
+                "Kiểm tra kiến thức về đơn thức, đơn thức thu gọn và đơn thức đồng dạng",
               questionCount: 10,
               timeLimit: 30,
               startTime: "2024-09-15T08:00:00",
@@ -129,8 +130,8 @@ const ClassroomDetail = () => {
             },
             {
               id: 2,
-              title: "Phép tính phân số",
-              description: "Bài tập về phép cộng, trừ, nhân, chia phân số",
+              title: "Đa thức",
+              description: "Bài tập về phép cộng, trừ, nhân, chia đa thức",
               questionCount: 15,
               timeLimit: 45,
               startTime: "2024-09-22T08:00:00",
@@ -143,8 +144,8 @@ const ClassroomDetail = () => {
             },
             {
               id: 3,
-              title: "Hình học cơ bản",
-              description: "Tính diện tích và chu vi các hình cơ bản",
+              title: "Tứ giác",
+              description: "Bài tập các hình khối cơ bản",
               questionCount: 12,
               timeLimit: 40,
               startTime: "2024-09-25T08:00:00",
