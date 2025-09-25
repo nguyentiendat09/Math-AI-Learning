@@ -72,9 +72,13 @@ const Navbar = () => {
           {/* Logo */}
           <div className="flex items-center flex-shrink-0">
             <Link to="/" className="flex items-center group">
-              {/* Logo Icon */}
-              <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-2.5 rounded-xl shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-105">
-                <BookOpen className="h-7 w-7 text-white" />
+              {/* Logo Image */}
+              <div className="bg-white p-1 rounded-xl group-hover:shadow-xl transition-all duration-300 group-hover:scale-105">
+                <img
+                  src="/assets/Gemini_logo.png"
+                  alt="MathAI Learning Logo"
+                  className="h-12 w-12 object-contain"
+                />
               </div>
 
               {/* Brand Text - Separated with better spacing */}
