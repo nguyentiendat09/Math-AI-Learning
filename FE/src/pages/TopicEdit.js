@@ -222,7 +222,15 @@ const TopicEdit = () => {
           category: "Đại số",
           xp: 100,
           prerequisites: [],
-          videos: [],
+          videos: [
+            {
+              id: 1,
+              title: "Video bài học số nguyên",
+              description: "Học về số nguyên qua video",
+              url: "https://www.youtube.com/watch?v=j2ltarHUGnM",
+              duration: "10:00",
+            },
+          ],
           quizzes: [],
           content: {
             knowledge:
@@ -244,7 +252,15 @@ const TopicEdit = () => {
           category: "Đại số",
           xp: 120,
           prerequisites: [1],
-          videos: [],
+          videos: [
+            {
+              id: 1,
+              title: "Video bài học phân số",
+              description: "Học về phân số qua video",
+              url: "https://www.youtube.com/watch?v=j2ltarHUGnM",
+              duration: "10:00",
+            },
+          ],
           quizzes: [],
           content: {
             knowledge:
@@ -266,7 +282,15 @@ const TopicEdit = () => {
           category: "Hình học",
           xp: 150,
           prerequisites: [],
-          videos: [],
+          videos: [
+            {
+              id: 1,
+              title: "Video bài học định lý Pythagore",
+              description: "Học về định lý Pythagore qua video",
+              url: "https://www.youtube.com/watch?v=j2ltarHUGnM",
+              duration: "10:00",
+            },
+          ],
           quizzes: [],
           content: {
             knowledge:
@@ -288,7 +312,15 @@ const TopicEdit = () => {
           category: "Thống kê",
           xp: 130,
           prerequisites: [2],
-          videos: [],
+          videos: [
+            {
+              id: 1,
+              title: "Video bài học xác suất cơ bản",
+              description: "Học về xác suất qua video",
+              url: "https://www.youtube.com/watch?v=j2ltarHUGnM",
+              duration: "10:00",
+            },
+          ],
           quizzes: [],
           content: {
             knowledge:

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import axios from "axios";
+import api from "../utils/api";
 import {
   Zap,
   Send,
@@ -44,7 +44,7 @@ const AIGenerator = () => {
     setQuizLoading(true);
 
     try {
-      const response = await axios.post("/api/ai/generate-quiz", {
+      const response = await api.post("/api/ai/generate-quiz", {
         topic: quizForm.topic,
         level: quizForm.level,
         numQuestions: quizForm.numQuestions,
@@ -117,7 +117,7 @@ const AIGenerator = () => {
     setChatLoading(true);
 
     try {
-      const response = await axios.post("/api/ai/chat", {
+      const response = await api.post("/api/ai/chat", {
         message: userMessage.content,
         context: chatMessages.slice(-10), // Send last 10 messages for context
       });

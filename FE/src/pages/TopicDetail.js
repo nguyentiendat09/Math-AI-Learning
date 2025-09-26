@@ -98,7 +98,15 @@ const TopicDetail = () => {
             application:
               "Số nguyên được sử dụng trong nhiều lĩnh vực như kinh tế, khoa học, và đời sống hàng ngày.\n\nỨng dụng thực tế:\n- Tính toán nhiệt độ (âm/dương)\n- Tài chính (lãi/lỗ)\n- Độ cao (trên/dưới mực nước biển)\n- Lập trình máy tính",
           },
-          videos: [],
+          videos: [
+            {
+              id: 1,
+              title: "Video bài học số nguyên",
+              description: "Học về số nguyên qua video",
+              url: "https://www.youtube.com/watch?v=j2ltarHUGnM",
+              duration: "10:00",
+            },
+          ],
           quizzes: [
             {
               id: 1,
@@ -132,7 +140,15 @@ const TopicDetail = () => {
             application:
               "Phân số được dùng trong nấu ăn, xây dựng, khoa học.\n\nVí dụ ứng dụng:\n- Công thức nấu ăn (1/2 cốc bột)\n- Đo lường xây dựng\n- Tỷ lệ hóa học",
           },
-          videos: [],
+          videos: [
+            {
+              id: 1,
+              title: "Video bài học phân số",
+              description: "Học về phân số qua video",
+              url: "https://www.youtube.com/watch?v=j2ltarHUGnM",
+              duration: "10:00",
+            },
+          ],
           quizzes: [
             {
               id: 1,
@@ -169,7 +185,15 @@ const TopicDetail = () => {
             application:
               "Định lý Pythagore được sử dụng trong xây dựng, navigation, computer graphics.\n\nỨng dụng:\n- Tính khoảng cách\n- Thiết kế kiến trúc\n- GPS và định vị\n- Đồ họa máy tính",
           },
-          videos: [],
+          videos: [
+            {
+              id: 1,
+              title: "Video bài học định lý Pythagore",
+              description: "Học về định lý Pythagore qua video",
+              url: "https://www.youtube.com/watch?v=j2ltarHUGnM",
+              duration: "10:00",
+            },
+          ],
           quizzes: [
             {
               id: 1,
@@ -203,7 +227,15 @@ const TopicDetail = () => {
             application:
               "Xác suất được dùng trong thống kê, kinh tế, khoa học.\n\nỨng dụng thực tế:\n- Dự báo thời tiết\n- Bảo hiểm và tài chính\n- Y học và dược phẩm\n- Trò chơi và thể thao\n- Khoa học dữ liệu",
           },
-          videos: [],
+          videos: [
+            {
+              id: 1,
+              title: "Video bài học xác suất cơ bản",
+              description: "Học về xác suất qua video",
+              url: "https://www.youtube.com/watch?v=j2ltarHUGnM",
+              duration: "10:00",
+            },
+          ],
           quizzes: [
             {
               id: 1,
@@ -240,7 +272,15 @@ const TopicDetail = () => {
             application:
               "Hệ phương trình được dùng trong kinh tế, kỹ thuật, khoa học.\n\nỨng dụng thực tế:\n- Tối ưu hóa sản xuất\n- Phân tích thị trường\n- Mạch điện\n- Cân bằng hóa học\n- Mô hình kinh tế",
           },
-          videos: [],
+          videos: [
+            {
+              id: 1,
+              title: "Video bài học hệ phương trình bậc nhất",
+              description: "Học về hệ phương trình qua video",
+              url: "https://www.youtube.com/watch?v=j2ltarHUGnM",
+              duration: "10:00",
+            },
+          ],
           quizzes: [
             {
               id: 1,

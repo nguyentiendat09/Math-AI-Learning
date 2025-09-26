@@ -3,6 +3,7 @@ const cors = require("cors");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const { v4: uuidv4 } = require("uuid");
+const { getRandomQuestions, getQuestionStats } = require("./data/questions");
 require("dotenv").config();
 
 const app = express();
@@ -12,7 +13,7 @@ const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key";
 // Middleware
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL || "http://localhost:3000",
+    origin: ["http://localhost:3000", "http://localhost:3001"],
     credentials: true,
   })
 );
@@ -678,92 +679,302 @@ app.post("/api/progress", authenticateToken, (req, res) => {
 });
 
 // AI Routes
-app.post("/api/ai/generate-quiz", authenticateToken, (req, res) => {
+app.post("/api/ai/generate-quiz", (req, res) => {
   try {
     const { topic, level, numQuestions, difficulty } = req.body;
 
-    // Simulated AI quiz generation with more variety
-    const questionTypes = [
-      {
-        question: `Cho biểu thức về ${topic} (${level}): Tính giá trị của x khi 2x + 5 = 15?`,
-        options: ["A. x = 5", "B. x = 10", "C. x = 7", "D. x = 8"],
-        correctAnswer: 0,
-        explanation: "Giải: 2x = 15 - 5 = 10, nên x = 5",
-      },
-      {
-        question: `Ứng dụng ${topic} trong đời sống: Nếu một hình chữ nhật có chiều dài 8cm và chiều rộng 5cm, diện tích là?`,
-        options: ["A. 40 cm²", "B. 35 cm²", "C. 45 cm²", "D. 30 cm²"],
-        correctAnswer: 0,
-        explanation: "Diện tích = chiều dài × chiều rộng = 8 × 5 = 40 cm²",
-      },
-      {
-        question: `Khái niệm ${topic}: Định lý Pythagore được áp dụng cho loại tam giác nào?`,
-        options: [
-          "A. Tam giác đều",
-          "B. Tam giác cân",
-          "C. Tam giác vuông",
-          "D. Tam giác tù",
-        ],
-        correctAnswer: 2,
-        explanation: "Định lý Pythagore chỉ áp dụng cho tam giác vuông",
-      },
-      {
-        question: `Bài toán ${topic}: Tìm số nguyên dương nhỏ nhất chia hết cho cả 3 và 4?`,
-        options: ["A. 7", "B. 12", "C. 24", "D. 6"],
-        correctAnswer: 1,
-        explanation: "BCNN(3,4) = 12",
-      },
-      {
-        question: `Phân tích ${topic}: Phân số 3/4 được viết dưới dạng thập phân là?`,
-        options: ["A. 0.75", "B. 0.25", "C. 0.5", "D. 0.8"],
-        correctAnswer: 0,
-        explanation: "3 ÷ 4 = 0.75",
-      },
-    ];
+    console.log("📚 Quiz generation request:", {
+      topic,
+      level,
+      numQuestions,
+      difficulty,
+    });
 
-    // Generate random questions based on numQuestions
-    const generatedQuiz = [];
-    for (let i = 0; i < numQuestions; i++) {
-      const randomIndex = Math.floor(Math.random() * questionTypes.length);
-      generatedQuiz.push({
-        ...questionTypes[randomIndex],
-        id: i + 1,
-        question: questionTypes[randomIndex].question
-          .replace(/\${topic}/g, topic)
-          .replace(/\${level}/g, level),
-      });
-    }
+    // Validate input
+    const requestedCount = parseInt(numQuestions) || 5;
+    const maxQuestions = Math.min(requestedCount, 20); // Limit max to 20 questions
+
+    // Map difficulty from frontend to backend format
+    let mappedDifficulty = null;
+    if (level === "Cơ bản") mappedDifficulty = "Cơ bản";
+    else if (level === "Trung bình") mappedDifficulty = "Trung bình";
+    else if (level === "Khó") mappedDifficulty = "Khó";
+
+    // Get random questions from our question bank
+    const selectedQuestions = getRandomQuestions(
+      maxQuestions,
+      mappedDifficulty
+    );
+
+    // Format questions for frontend
+    const formattedQuiz = selectedQuestions.map((q, index) => ({
+      id: index + 1,
+      question: q.question,
+      options: q.options,
+      correctAnswer: q.correctAnswer,
+      explanation: `Đáp án đúng: ${q.options[q.correctAnswer]}. Chủ đề: ${
+        q.topic
+      }`,
+      difficulty: q.difficulty,
+      topic: q.topic,
+    }));
+
+    // Get stats for additional info
+    const stats = getQuestionStats();
+
+    console.log("✅ Generated quiz:", {
+      questionsGenerated: formattedQuiz.length,
+      difficulty: mappedDifficulty || "Tất cả",
+      availableQuestions: stats.total,
+    });
 
     res.json({
       message: "Quiz generated successfully",
-      quiz: generatedQuiz,
+      quiz: formattedQuiz,
+      metadata: {
+        totalQuestions: formattedQuiz.length,
+        difficulty: mappedDifficulty || "Tất cả",
+        topics: [...new Set(formattedQuiz.map((q) => q.topic))],
+        stats: stats,
+      },
     });
   } catch (error) {
-    res.status(500).json({ message: "Server error", error: error.message });
+    console.error("❌ Quiz generation error:", error);
+    res.status(500).json({
+      message: "Server error",
+      error: error.message,
+      fallback: "Không thể tạo quiz. Vui lòng thử lại.",
+    });
   }
 });
 
 // AI Chat endpoint
-app.post("/api/ai/chat", authenticateToken, (req, res) => {
+app.post("/api/ai/chat", (req, res) => {
   try {
     const { message, history } = req.body;
 
-    // Simulate AI response based on message content
+    // Smart AI response based on message content
     let aiResponse = "";
+    const lowerMessage = message.toLowerCase();
 
-    if (message.toLowerCase().includes("phân số")) {
-      aiResponse = `Về phân số, tôi có thể giải thích:\n\n1. Phân số là cách biểu diễn một phần của tổng thể\n2. Tử số (trên) cho biết có bao nhiêu phần\n3. Mẫu số (dưới) cho biết tổng cộng có bao nhiêu phần bằng nhau\n\nVí dụ: 3/4 có nghĩa là có 3 phần trong tổng số 4 phần bằng nhau.\n\nBạn có muốn tôi tạo bài tập về phân số không?`;
-    } else if (message.toLowerCase().includes("hình học")) {
-      aiResponse = `Hình học là một nhánh quan trọng của toán học:\n\n1. Nghiên cứu về hình dạng, kích thước và vị trí\n2. Bao gồm: điểm, đường thẳng, góc, đa giác, hình tròn\n3. Ứng dụng trong kiến trúc, thiết kế, kỹ thuật\n\nMột số công thức cơ bản:\n- Diện tích hình chữ nhật: dài × rộng\n- Diện tích hình tròn: π × r²\n- Chu vi hình tròn: 2 × π × r\n\nBạn muốn học về hình nào cụ thể?`;
-    } else if (message.toLowerCase().includes("đại số")) {
-      aiResponse = `Đại số là ngành toán học về biểu thức và phương trình:\n\n1. Sử dụng chữ cái (biến) để đại diện cho số\n2. Giải phương trình để tìm giá trị của biến\n3. Các phép toán: cộng, trừ, nhân, chia với biến\n\nVí dụ phương trình đơn giản:\n- 2x + 3 = 7\n- Giải: 2x = 7 - 3 = 4\n- Nên x = 2\n\nBạn có muốn thực hành với các phương trình khác không?`;
+    // Math topics responses
+    if (lowerMessage.includes("phân số") || lowerMessage.includes("phan so")) {
+      aiResponse = `📊 **Phân số - Kiến thức cơ bản:**
+
+🔢 **Định nghĩa:** Phân số a/b biểu diễn phép chia a cho b (b ≠ 0)
+• Tử số (a): Số bị chia
+• Mẫu số (b): Số chia
+
+📝 **Các phép toán cơ bản:**
+• Cộng: a/c + b/c = (a+b)/c
+• Trừ: a/c - b/c = (a-b)/c  
+• Nhân: a/b × c/d = (a×c)/(b×d)
+• Chia: a/b ÷ c/d = a/b × d/c = (a×d)/(b×c)
+
+💡 **Ví dụ:** 2/3 + 1/3 = 3/3 = 1
+
+Bạn muốn tôi tạo bài tập về phân số không? 🤔`;
     } else if (
-      message.toLowerCase().includes("bài tập") ||
-      message.toLowerCase().includes("tạo")
+      lowerMessage.includes("phương trình") ||
+      lowerMessage.includes("phuong trinh")
     ) {
-      aiResponse = `Tôi có thể tạo bài tập cho bạn! Hãy cho tôi biết:\n\n1. Chủ đề bạn muốn luyện tập (phân số, hình học, đại số...)\n2. Mức độ khó (cơ bản, trung bình, nâng cao)\n3. Loại bài tập (trắc nghiệm, tự luận, điền vào chỗ trống)\n\nTôi sẽ tạo những bài tập phù hợp với trình độ của bạn!`;
+      aiResponse = `📐 **Phương trình bậc nhất:**
+
+🎯 **Dạng tổng quát:** ax + b = 0 (a ≠ 0)
+**Nghiệm:** x = -b/a
+
+📚 **Các bước giải:**
+1️⃣ Chuyển vế (đổi dấu khi chuyển)
+2️⃣ Thu gọn hai vế  
+3️⃣ Chia cả hai vế cho hệ số của x
+
+💡 **Ví dụ:** 2x + 6 = 0
+• Chuyển vế: 2x = -6
+• Chia cho 2: x = -3
+
+🔍 **Phương trình bậc hai:** ax² + bx + c = 0
+• Δ = b² - 4ac
+• Nếu Δ > 0: x = (-b ± √Δ)/(2a)
+
+Có câu hỏi nào về phương trình không? 🧮`;
+    } else if (
+      lowerMessage.includes("hình học") ||
+      lowerMessage.includes("hinh hoc")
+    ) {
+      aiResponse = `📐 **Hình học - Công thức cơ bản:**
+
+🔷 **Hình chữ nhật:**
+• Diện tích: S = a × b
+• Chu vi: P = 2(a + b)
+
+🔶 **Hình vuông:**  
+• Diện tích: S = a²
+• Chu vi: P = 4a
+
+🔵 **Hình tròn:**
+• Diện tích: S = πr²
+• Chu vi: C = 2πr
+
+🔺 **Tam giác:**
+• Diện tích: S = (1/2) × đáy × chiều cao
+• Định lý Pythagore: a² + b² = c²
+
+📊 **Hình thang:**
+• Diện tích: S = (1/2)(a + b) × h
+
+Bạn cần giải bài tập hình học nào? 📝`;
+    } else if (
+      lowerMessage.includes("căn bậc hai") ||
+      lowerMessage.includes("can bac hai")
+    ) {
+      aiResponse = `🔢 **Căn bậc hai:**
+
+📖 **Định nghĩa:** √a là số x sao cho x² = a (a ≥ 0)
+
+⚡ **Tính chất:**
+• √(a²) = |a|
+• √(ab) = √a × √b
+• √(a/b) = √a / √b
+
+🎯 **Công thức quan trọng:**
+• (√a + √b)² = a + 2√(ab) + b
+• (√a - √b)² = a - 2√(ab) + b
+• (√a + √b)(√a - √b) = a - b
+
+💡 **Ví dụ rút gọn:**
+• √12 = √(4×3) = 2√3
+• √50 = √(25×2) = 5√2
+
+🔍 **Điều kiện:** √a có nghĩa khi a ≥ 0
+
+Cần giải thích thêm về căn thức không? 🤓`;
+    } else if (
+      lowerMessage.includes("bài tập") ||
+      lowerMessage.includes("tạo") ||
+      lowerMessage.includes("quiz")
+    ) {
+      const stats = getQuestionStats();
+      aiResponse = `🎯 **Tôi có thể tạo bài tập cho bạn!**
+
+📚 **Ngân hàng câu hỏi hiện có:**
+• 📊 Tổng: ${stats.total} câu hỏi
+• 🟢 Cơ bản: ${stats.byDifficulty["Cơ bản"]} câu
+• 🟡 Trung bình: ${stats.byDifficulty["Trung bình"]} câu  
+• 🔴 Khó: ${stats.byDifficulty["Khó"]} câu
+
+🏷️ **Chủ đề có sẵn:**
+${stats.topics.map((topic) => `• ${topic}`).join("\n")}
+
+💡 **Cách sử dụng:**
+1️⃣ Vào tab "Quiz Generator" 
+2️⃣ Chọn chủ đề và độ khó
+3️⃣ Chọn số câu hỏi (1-20)
+4️⃣ Nhấn "Tạo Quiz"
+
+🎮 **Hoặc hỏi trực tiếp:** "Tạo 5 câu về phương trình cơ bản"`;
+    } else if (
+      lowerMessage.includes("lũy thừa") ||
+      lowerMessage.includes("luy thua")
+    ) {
+      aiResponse = `⚡ **Lũy thừa:**
+
+📖 **Định nghĩa:** aⁿ = a × a × ... × a (n lần)
+
+🔢 **Quy tắc tính:**
+• a⁰ = 1 (a ≠ 0)
+• a¹ = a
+• aᵐ × aⁿ = aᵐ⁺ⁿ
+• aᵐ ÷ aⁿ = aᵐ⁻ⁿ
+• (aᵐ)ⁿ = aᵐˣⁿ
+• (ab)ⁿ = aⁿbⁿ
+
+💡 **Lũy thừa âm:**
+• a⁻ⁿ = 1/aⁿ
+• Ví dụ: 2⁻³ = 1/2³ = 1/8
+
+🎯 **Ví dụ:**
+• 2³ = 8
+• 3² × 3⁴ = 3⁶ = 729
+• (2³)² = 2⁶ = 64
+
+Cần giải bài tập về lũy thừa không? 🚀`;
+    } else if (
+      lowerMessage.includes("giúp") ||
+      lowerMessage.includes("help") ||
+      lowerMessage.includes("hỗ trợ")
+    ) {
+      aiResponse = `🤖 **AI Toán học - Trợ lý học tập của bạn!**
+
+🎯 **Tôi có thể giúp bạn:**
+
+📚 **Giải thích lý thuyết:**
+• Phân số, thập phân, phần trăm
+• Phương trình, bất phương trình  
+• Hình học phẳng, hình không gian
+• Căn bậc hai, lũy thừa
+• Hàm số, đồ thị
+
+🧮 **Hướng dẫn giải bài:**
+• Từng bước chi tiết
+• Mẹo và công thức nhanh
+• Cách tránh sai lầm thường gặp
+
+🎮 **Tạo bài tập:**
+• Quiz trắc nghiệm tự động
+• Phân loại theo độ khó
+• Giải thích đáp án chi tiết
+
+💡 **Cách sử dụng hiệu quả:**
+1️⃣ Hỏi cụ thể: "Giải phương trình 2x + 5 = 11"
+2️⃣ Yêu cầu giải thích: "Căn bậc hai là gì?"
+3️⃣ Tạo bài tập: "Tạo 5 câu về hình học"
+
+Bạn muốn bắt đầu với chủ đề nào? 😊`;
+    } else if (
+      lowerMessage.includes("giải") &&
+      lowerMessage.includes("phương trình")
+    ) {
+      aiResponse = `🔍 **Giải phương trình bước by bước:**
+
+Hãy cho tôi phương trình cụ thể, ví dụ:
+• "Giải 2x + 3 = 7"
+• "Giải x² - 5x + 6 = 0"  
+• "Giải √(x+1) = 3"
+
+📝 **Các dạng phương trình tôi có thể giải:**
+
+🔸 **Bậc nhất:** ax + b = 0
+🔸 **Bậc hai:** ax² + bx + c = 0
+🔸 **Phương trình tích:** (x-a)(x-b) = 0
+🔸 **Chứa căn:** √(ax+b) = c
+🔸 **Chứa ẩn ở mẫu:** a/(x+b) = c
+🔸 **Trị tuyệt đối:** |ax+b| = c
+
+💡 **Mẹo:** Viết phương trình rõ ràng để tôi giải chính xác nhất!
+
+Bạn có phương trình nào cần giải không? 🎯`;
     } else {
-      aiResponse = `Tôi hiểu bạn đang hỏi về "${message}".\n\nTôi có thể giúp bạn:\n✓ Giải thích các khái niệm toán học\n✓ Hướng dẫn giải bài tập\n✓ Tạo bài tập luyện tập\n✓ Chia sẻ mẹo học toán hiệu quả\n\nHãy đặt câu hỏi cụ thể hơn để tôi có thể hỗ trợ bạn tốt nhất! Ví dụ: "Giải thích phân số", "Tạo bài tập về hình học", "Cách tính diện tích hình tròn"...`;
+      aiResponse = `💭 **Tôi hiểu bạn đang hỏi về:** "${message}"
+
+🎓 **MathAI Learning - Trợ lý toán học thông minh**
+
+🔥 **Chủ đề HOT:**
+• 📊 Phân số và thập phân
+• 📐 Phương trình và bất phương trình  
+• 🔺 Hình học và công thức diện tích
+• 🔢 Căn bậc hai và lũy thừa
+• 📈 Hàm số và đồ thị
+
+💡 **Gợi ý câu hỏi:**
+• "Giải thích định lý Pythagore"
+• "Cách rút gọn phân số"
+• "Tạo 5 câu trắc nghiệm về hình tròn" 
+• "Giải phương trình x² - 4 = 0"
+• "Công thức tính diện tích tam giác"
+
+🎯 **Hoặc sử dụng Quiz Generator để tạo đề thi tự động!**
+
+Hãy hỏi cụ thể hơn để tôi giúp bạn hiệu quả nhất! 😊✨`;
     }
 
     res.json({
