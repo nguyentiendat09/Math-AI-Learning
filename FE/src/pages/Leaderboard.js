@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../contexts/AuthContext";
-import axios from "axios";
+import api from "../utils/api";
 import {
   Trophy,
   Medal,
@@ -27,7 +27,7 @@ const Leaderboard = () => {
 
   const fetchLeaderboard = async () => {
     try {
-      const response = await axios.get("/api/leaderboard");
+      const response = await api.get("/api/leaderboard");
       setLeaderboard(response.data);
 
       // Find current user's rank

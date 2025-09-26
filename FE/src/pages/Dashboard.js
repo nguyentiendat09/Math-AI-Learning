@@ -103,7 +103,7 @@ const Dashboard = () => {
             Chào mừng trở lại, {user?.name}! 👋
           </h1>
           <p className="text-gray-600">
-            Sẵn sàng tiếp tục hành trình khám phá toán học?
+            Bạn đã sẵn sàng tiếp tục hành trình khám phá toán học?
           </p>
         </div>
 

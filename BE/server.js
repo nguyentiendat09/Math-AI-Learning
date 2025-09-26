@@ -1200,6 +1200,10 @@ app.get("/api/users/profile", authenticateToken, (req, res) => {
 // Leaderboard Route
 app.get("/api/leaderboard", (req, res) => {
   try {
+    console.log("📊 Leaderboard request received");
+    console.log("Total users:", users.length);
+    console.log("Students:", users.filter((u) => u.role === "student").length);
+
     const leaderboard = users
       .filter((u) => u.role === "student")
       .sort((a, b) => b.xp - a.xp)
@@ -1214,8 +1218,10 @@ app.get("/api/leaderboard", (req, res) => {
         ).length,
       }));
 
+    console.log("✅ Leaderboard generated:", leaderboard.length, "entries");
     res.json(leaderboard);
   } catch (error) {
+    console.error("❌ Leaderboard error:", error);
     res.status(500).json({ message: "Server error", error: error.message });
   }
 });
