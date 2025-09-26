@@ -13,8 +13,16 @@ const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key";
 // Middleware
 app.use(
   cors({
-    origin: ["http://localhost:3000", "http://localhost:3001"],
+    origin: [
+      "http://localhost:3000",
+      "http://localhost:3001",
+      "https://math-ai-learning.vercel.app",
+      "https://math-ai-learning-git-main-nguyentiendat09s-projects.vercel.app",
+      process.env.FRONTEND_URL,
+    ].filter(Boolean),
     credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
 app.use(express.json());
@@ -675,6 +683,39 @@ app.post("/api/progress", authenticateToken, (req, res) => {
     res.json({ message: "Progress updated successfully" });
   } catch (error) {
     res.status(500).json({ message: "Server error", error: error.message });
+  }
+});
+
+// Health check endpoint
+app.get("/health", (req, res) => {
+  res.json({
+    status: "OK",
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || "development",
+  });
+});
+
+// Test quiz data endpoint
+app.get("/api/test-quiz", (req, res) => {
+  try {
+    const {
+      getRandomQuestions,
+      getQuestionStats,
+    } = require("./data/questions");
+    const stats = getQuestionStats();
+    const sampleQuestions = getRandomQuestions(3);
+
+    res.json({
+      message: "Quiz data test successful",
+      stats,
+      sampleQuestions: sampleQuestions.length,
+      firstQuestion: sampleQuestions[0] || null,
+    });
+  } catch (error) {
+    res.status(500).json({
+      error: "Quiz data test failed",
+      details: error.message,
+    });
   }
 });
 
