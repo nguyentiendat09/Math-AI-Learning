@@ -173,7 +173,8 @@ const Home = () => {
             </h1>
 
             <p className="text-xl md:text-2xl text-blue-100 max-w-3xl mx-auto">
-              Cùng AI học Toán – Hiểu sâu, Học vui, Ứng dụng thực tiễn
+              Hành trình học toán thông qua lịch sử, kiến thức và ứng dụng thực
+              tiễn với sự hỗ trợ của AI
             </p>
 
             {/* Video Player Mock */}
