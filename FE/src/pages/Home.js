@@ -166,30 +166,31 @@ const Home = () => {
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center text-spacing">
             <h1 className="text-4xl md:text-6xl font-bold">
-              AI + Toán học =
+              AI cùng Toán học
               <span className="block text-yellow-300 mt-4">
-                Khám phá đầy hứng thú
+                Hiểu sâu hơn, học vui hơn
               </span>
             </h1>
 
             <p className="text-xl md:text-2xl text-blue-100 max-w-3xl mx-auto">
-              Hành trình học toán thông qua lịch sử, kiến thức và ứng dụng thực
-              tiễn với sự hỗ trợ của AI
+              Hành trình toán học qua lịch sử, nền tảng kiến thức và ứng dụng
+              thực tiễn với sự hỗ trợ của AI.
             </p>
 
-            {/* Video Player Mock */}
-            <div className="content-spacing max-w-4xl mx-auto">
+            {/* Video giới thiệu */}
+            <div className="content-spacing max-w-6xl mx-auto">
               <div className="relative bg-black rounded-lg overflow-hidden shadow-2xl">
-                <div className="aspect-video bg-gradient-to-r from-gray-800 to-gray-900 flex items-center justify-center">
-                  <div className="text-center">
-                    <Play className="h-20 w-20 text-white mb-4 mx-auto opacity-80" />
-                    <p className="text-white text-lg">
-                      Video giới thiệu MathAI Learning
-                    </p>
-                    <p className="text-gray-300 text-sm mt-2">
-                      Giáo viên AI sẽ dẫn dắt bạn khám phá toán học
-                    </p>
-                  </div>
+                <div className="relative w-full h-96 md:h-[500px] lg:h-[600px]">
+                  <iframe
+                    width="100%"
+                    height="100%"
+                    src="https://www.youtube.com/embed/5UniItcUCso"
+                    title="Video giới thiệu MathAI Learning"
+                    frameBorder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    allowFullScreen
+                    className="w-full h-full absolute inset-0"
+                  ></iframe>
                 </div>
               </div>
             </div>
